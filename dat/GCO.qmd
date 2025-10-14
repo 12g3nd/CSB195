@@ -1,0 +1,448 @@
+---
+title: "Report 1: Genetic Code Optimization"
+author: "Srihith Jarabana"
+editor: visual
+date: last-modified
+---
+
+# Part 1: Benchmark Standard Genetic Code Quality Score
+
+> Implementation should be verified by calculating the "quality" of the Standard Genetic Code as a control
+
+## 1.1: Load Required Packages
+
+```{r}
+#| label: Load Required Packages
+# Load required packages
+library(Biostrings)
+
+# For safe RNA→DNA conversion
+rna_bases <- c("U", "C", "A", "G")
+dna_bases <- c("T", "C", "A", "G")
+```
+
+## 1.2: Define the Standard Genetic Code
+
+```{r}
+#| label: Define the Standard Genetic Code
+# Load the standard genetic code (DNA codons)
+stdGeneticCode <- getGeneticCode("Standard", full.search = TRUE)
+stdGeneticCode
+```
+
+## 1.3: Generate Codons
+
+```{r}
+#| label: Generate Codons
+# Generate all possible RNA codons first
+all_codons_rna <- expand.grid(rna_bases, rna_bases, rna_bases)
+all_codons_rna <- apply(all_codons_rna, 1, paste0, collapse = "")
+
+# Convert RNA codons to DNA codons (U → T)
+all_codons <- chartr("U", "T", all_codons_rna)
+all_codons
+```
+
+## 1.4: Define a Function to Get Neighbouring Codons
+
+```{r}
+#| label: Define a Function to Get Neighbouring Codons
+# Function to generate all codons that differ by 1 nucleotide
+get_neighbors <- function(codon) {
+  bases <- c("A", "C", "G", "T")  # DNA bases
+  codon_split <- strsplit(codon, "")[[1]]
+  neighbors <- character()
+  
+  for (i in 1:3) {
+    for (b in bases) {
+      if (b != codon_split[i]) {
+        neighbor <- codon_split
+        neighbor[i] <- b
+        neighbors <- c(neighbors, paste0(neighbor, collapse = ""))
+      }
+    }
+  }
+  
+  return(neighbors)
+}
+
+# Test example
+get_neighbors("ATG")
+```
+
+## 1.5: Load the aaSim Function
+
+```{r}
+#| label: Load the aaSim Function
+# Download and load the prebuilt aaSim function
+baseURL <- "https://raw.githubusercontent.com/hyginn/CSB195/main/"
+fn <- "./dat/aaSim.4.1.Rds"
+
+# Ensure the dat folder exists
+if (!dir.exists("./dat")) dir.create("./dat")
+
+# Download the RDS file
+if (!file.exists(fn)) download.file(paste0(baseURL, fn), fn, mode="wb")
+
+# Load the function
+aaSim <- readRDS(fn)
+```
+
+## 1.6: Compute the Benchmark
+
+```{r}
+#| label: Compute the Benchmark
+# Initialize total score
+total_score <- 0
+
+# Iterate over all codons
+for (codon in all_codons) {
+  aa1 <- stdGeneticCode[codon]  # Original codon AA
+  
+  neighbors <- get_neighbors(codon)
+  
+  for (neighbor in neighbors) {
+    aa2 <- stdGeneticCode[neighbor]
+    total_score <- total_score + aaSim(aa1, aa2)
+  }
+}
+
+total_score
+```
+
+# Part 2: Comparing SGC to Randomly Generated Genetic Codes
+
+Now that the SGC matches the expected result, we can move on to comparing it to random generated genetic codes, or the first part of the report.
+
+> Perform a computational experiment to compare the Standard Genetic Code with a large number of randomly generated codes, to assess whether it appears to have evolved under selection for such tolerance.
+
+## 2.1: Calculate Quality Score for Any Genetic Code
+
+```{r}
+#| label: Calculate Quality Score for Any Genetic Code
+# Function to calculate total code quality score
+calc_code_quality <- function(genetic_code, aaSim) {
+  total_score <- 0
+  codons <- names(genetic_code)
+  
+  for (codon in codons) {
+    aa1 <- genetic_code[codon]
+    neighbors <- get_neighbors(codon)
+    
+    for (neighbor in neighbors) {
+      aa2 <- genetic_code[neighbor]
+      total_score <- total_score + aaSim(aa1, aa2)
+    }
+  }
+  
+  return(total_score)
+}
+```
+
+## 2.2: Generating 10,000 Random Genetic Codes
+
+> Each generated code must map 64 codons to all 20 amino acids, and at least one stop codon.
+
+```{r}
+#| label: Generating 10,000 Random Genetic Codes
+aa_alphabet <- c("A","C","D","E","F","G","H","I","K","L",
+                 "M","N","P","Q","R","S","T","V","W","Y","*")
+
+set.seed(123) # For reproducibility
+
+generate_random_code <- function() {
+  codons <- names(stdGeneticCode)  # 64 DNA codons
+  aa_letters <- aa_alphabet[-21]   # first 20 are amino acids
+  stop_codon <- "*"
+  
+  # Pick 1 codon as stop
+  stop_pos <- sample(codons, 1)
+  remaining_codons <- setdiff(codons, stop_pos)
+  
+  # Assign remaining codons randomly to the 20 amino acids
+  remaining_aas <- sample(rep(aa_letters, length.out = length(remaining_codons)))
+  
+  random_code <- c(setNames(stop_codon, stop_pos), setNames(remaining_aas, remaining_codons))
+  return(random_code)
+}
+```
+
+## 2.3: Statistical Analysis
+
+```{r}
+num_random <- 10000
+random_scores <- numeric(num_random)
+
+for (i in 1:num_random) {
+  rand_code <- generate_random_code()
+  random_scores[i] <- calc_code_quality(rand_code, aaSim)
+  
+  if (i %% 1000 == 0) cat("Processed", i, "codes\n")
+}
+
+# SGC score
+sgc_score <- calc_code_quality(stdGeneticCode, aaSim)
+```
+
+## 2.4: Visualization
+
+```{r}
+library(ggplot2)
+
+ggplot(data.frame(score=random_scores), aes(x=score)) +
+  geom_histogram(binwidth=50, fill="skyblue", color="black", alpha=0.7) +
+  geom_vline(xintercept=sgc_score, color="red", linetype="dashed", size=1.2) +
+  labs(title="Distribution of Genetic Code Quality Scores",
+       x="Code Quality Score", y="Frequency") +
+  annotate("text", x=sgc_score, y=max(table(cut(random_scores, breaks=50)))*0.9,
+           label="SGC", color="red", angle=90, vjust=-0.5)
+
+# CDF for percentile calculation
+ggplot(data.frame(score=random_scores), aes(x=score)) +
+  stat_ecdf(geom="step") +
+  geom_vline(xintercept=sgc_score, color="red", linetype="dashed") +
+  labs(title="CDF of Random Genetic Code Scores", x="Score", y="CDF")
+```
+
+## 2.5: Interpretation and Summary 
+
+```{r}
+sgc_percentile <- mean(random_scores <= sgc_score) * 100
+sgc_percentile
+```
+
+## 2.6: Create Summary Table for Report
+
+```{r}
+summary_table <- data.frame(
+  Metric = c("SGC Score", "Random Mean", "Random SD", "SGC Percentile"),
+  Value = c(
+    sgc_score,
+    mean(random_scores),
+    sd(random_scores),
+    sgc_percentile
+  )
+)
+
+summary_table
+```
+
+# Part 3: Discussion and Analysis
+
+Now, that the tests have been successfully run, we can look into what they mean.
+
+> Discuss how close to a global optimum in this respect the Standard Genetic Code might be, and discuss limitations of your experiment in reaching your conclusions.
+
+## 3.1: Brief Summary
+
+-   **Objective** is to evaluate whether the universal genetic code is the best it can be.
+    -   Essentially, test whether the Standard Genetic Code is optimized to be tolerant of single-nucleotide point mutations by comparing its total amino-acid distance score (using the aaSim function) to a large sample of (10,000) randomly generated alternative codes which are then put through the same test.
+-   **Metric** is total code score which is the sum of `aaSim(aa1, aa2)` over all 64 codons × 9 single-nucleotide neighbors (576 comparisons).
+    -   Two amino acids have a smaller score, thus a lower overall score means more that the genetic code tested is more tolerant.
+-   **Main finding** that has been computed is the SGC total score and is compared against random codes and plotted visually to contextualize findings.
+
+## 3.2: Description of Methods
+
+### Clarifications of Assumptions
+
+> How to define a computable measure of tolerance of point mutations
+
+-   Measured a computation mutation tolerance ("quality" score) by simulating single-nucleotide (i.e. point) mutations in codons and then calculating how often these mutations lead to a change in the amino acid itself.
+
+-   Essentially, measure was computationally figured out by counting how robust each genetic code is against single-base changes.
+
+-   Use of the aaSim function that "computes pairwise amino acid distances" (Steipe 2025).
+
+> How to create valid alternative codes that respect the requirements of biology that are not part of the code itself – here one needs to distinguish between causes that shaped the code from consequences of its structure
+
+-   Biological completeness was assured due to the use of all 20 amino acids.
+
+-   Script randomized codon assignments while maintaining that each codon still mapped to a valid amino acid.
+
+-   The randomization respected basic biological constraints.
+
+    -   i.e., codons remained 3-letter combinations of A, T, G, C, and stop codons were preserved.
+
+> How to conduct your computational experiment, including the design of positive and negative controls if necessary
+
+-   Calculated the quality score for the the real (standard) genetic code and a set of 10,000 randomized alternative codes.
+
+-   Then compared their scores to see if the natural code performed better than the random ones.
+
+-   Standard genetic code acted as the "test" case and the randomly generated genetic codes implicitly acted as the negative control.
+
+### Methodology
+
+1.  Define a measure of mutation tolerance ("quality")
+
+    a\. Used the aaSim() function to compute how tolerant a genetic code is to single-nucleotide (point) mutations.
+
+    b\. Function checks the similarity between amino acids coming from all possible single-base substitutions in the codons.
+
+    c\. Then outputs a measure of how often mutations lead to similar/identical amino acids (higher values indicate greater tolerance).
+
+2.  Load the standard genetic code
+
+    a\. The standard genetic code was used as the baseline for comparison.
+
+    b\. This code maps 64 codons to 20 amino acids and stop codons as per assignment guidelines.
+
+3.  Generate alternative randomized genetic codes
+
+    a\. Randomized versions of the genetic code were created while making sure that they are biological valid.
+
+    b\. Ensured that:
+
+    -   All 20 amino acids were still represented.
+
+    -   Stop codons remained correctly assigned.
+
+    -   Codon structure (i.e. triplet format) was maintained.
+
+    c\. This created "valid alternative codes" for comparison.
+
+4.  Compute tolerance of point mutations across all codes
+
+    a\. Applied aaSim() to each alternative code and to the standard code.
+
+    b\. Calculated the mean similarity score for all possible point mutations in each code.
+
+    c\. This produced a distribution of tolerance scores for random codes.
+
+5.  Compare the standard code to alternatives
+
+    a\. Compared the standard code’s tolerance score to the distribution of scores from the randomized codes using a special marker in the figures.
+
+    b\. Evaluated whether the natural code showed rather high tolerance, suggesting optimization.
+
+6.  Experimental controls
+
+    a\. The standard genetic code served as the test case.
+
+    b\. The randomized codes served as negative controls to establish a baseline to compare it against.
+
+**See Appendix A for more details**
+
+## 3.3: Description of Results
+
+-   The total quality score for the Standard Genetic Code (SGC) was **9856.116**.
+
+    -   This score was computed using the `aaSim` similarity function, which quantifies the similarity between two amino acids as "the Euclidian distance between their positions in an amino acid feature space" (Steipe 2025).
+
+    -   A lower score indicates greater robustness (i.e., higher tolerance to point mutations).
+
+-   A total of 10,000 random genetic codes were generated by randomizing amino acid assignments while maintaining biological constraints (same codon count, all amino acids represented).
+
+-   The **mean score** of these random codes was **12729.7031**, with a standard deviation of 223.7533.
+
+-   The Standard Genetic Code’s score (9856.116) was lower than any of the 10,000 random codes tested.
+
+    -   This places the SGC below the 0th percentile of the distribution; it is more optimized than 100% of the random codes generated.
+
+-   The histogram and cumulative distribution function (CDF) visualizations likewise showcase that the SGC’s score lies far to the left of the random distribution, emphasizing its exceptional optimization compared to chance and randomness.
+
+-   In brief, these results support the hypothesis that the genetic code is non-randomly optimized to strongly minimize the harmful effects of point mutations.
+
+## 3.4: Discussion
+
+-   These results suggest that the SGC is not a random outcome (such as that all living life had it randomly selected and kept it) but rather a product of evolutionary optimization where it has become more efficient over time.
+
+-   Scientific literature often supports these findings as many show how the SGC minimizes translation errors and the biochemical impact of point mutations far better than most possible genetic codes.
+
+-   For instance, works by S.J. Freeland and L.D. Hurst demonstrated that the SGC ranks within the top of all possible genetic codes in minimizing the effects of amino acid substitutions (Freeland and Hurst 1998).
+
+    -   Freeland and Hurst also described the matter that all naturally occurring variant genetic codes (that evolved later in the timeline) appear less optimized than the standard code suggesting that perhaps the element of time plays an exceptional role in the SGC's optimization.
+
+    -   These findings continue to reinforce the concept that the genetic code likely evolved under selective pressure, allowing organisms such as ourselves to tolerate mutations without catastrophic impacts on protein structure or function.
+
+<!-- -->
+
+-   In another study by Steven Massey, the genetic code's point tolerance structure (which minimizes damage due to mutations) may have arisen without direct selective pressures (Massey 2015).
+
+    -   Through simulations, Massey shows that error minimization could emerge naturally during code expansion.
+
+    -   This is interesting as it changes the way we think about how optimization occurs, leading to various new ideas that future experiments could explore further.
+
+-   However, the experiment also has limitations. The `aaSim` metric captures only one measure between amino acids but does not account for other biological factors (e.g. tRNA abundance) which may influence mutation tolerance in reality.
+
+<!-- -->
+
+-   Additionally, only single-point mutations were considered. In nature, multiple-nucleotide changes can alter how mutation effects work, which future studies could incorporate using more complex evolutionary models and computational power.
+
+<!-- -->
+
+-   One notable thought is the use of a positive control (a theoretically "perfect" genetic code) and how the SGC compares to it and what is different between them.
+
+## 3.5: Conclusion
+
+-   The experiment successfully quantified the tolerance of point mutations of the Standard Genetic Code (SGC) using a similarity measure (aaSim).
+
+<!-- -->
+
+-   By comparing the SGC’s total score (9856.116) with 10,000 randomized alternative genetic codes, it was found that none of the random codes had greater optimization.
+
+    -   This result places the SGC at the extreme lower end of the distribution, indicating that it is more optimized than all randomly generated alternatives under the same restrictions.
+
+<!-- -->
+
+-   The resulst highlight strong evidence that the structure of the genetic code is highly non-random, having evolved to minimize the impact of point mutations on function.
+
+<!-- -->
+
+-   Overall, the Standard Genetic Code demonstrates both efficiency and evolutionary optimization, supporting the current broader hypothesis that natural selection favoured genetic codes that provide error tolerance and stability.
+
+-   However, this experiment still has various limitations and should be taken as just one part of a larger system to figure out whether the SGC is the peak of biological optimization.
+
+## 3.6: References
+
+Freeland, Stephen J., Robin D. Knight, Laura F. Landweber, and Laurence D. Hurst. 2000. ["Early Fixation of an Optimal Genetic Code."](https://pubmed.ncbi.nlm.nih.gov/10742043/) *Molecular Biology and Evolution* 17, no. 4: 511-518.
+
+Massey, Steven E. 2015. ["Genetic Code Evolution Reveals the Neutral Emergence of Mutational Robustness, and Information as an Evolutionary Constraint."](https://pmc.ncbi.nlm.nih.gov/articles/PMC4500140/) *Life* 5, no. 2: 1301-1332.
+
+Hyginn. n.d. "Computing Amino Acid Similarity." GitHub repository, CSB195. Accessed October 12, 2025. <https://github.com/hyginn/CSB195/blob/main/src/qmd/computingAminoAcidSimilarity.qmd>.
+
+## 3.7: Appendix A - Implementation Details & Reproducibility
+
+-   Manually created the Quarto document in RStudio, typing all text while allowing AI to only input the R code itself.
+
+    -   This includes formatting (e.g. headers, code text, bolding text, etc.).
+
+-   The reproducibility includes `set.seed(123)` used for all sampling; aaSim.4.1.Rds included in ./dat/ and referenced via `readRDS()`.
+
+-   Included an additional section titled "Discussion" to help discuss important limitations and research currently present in the field.
+
+## 3.8: Appendix B - AI Usage & Self-Assessment
+
+-   AI assistance
+
+    -   ChatGPT (GPT-5)
+
+        -   Produce and debug R code
+
+    -   Gemini 2.5 Flash
+
+        -   Discuss interesting perspectives regarding limitations
+
+        -   Supplied further readings and discussions to discuss the results
+
+-   Self-assessment based on course rubric
+
+    -   Collaborative improvement: excellent
+
+        -   I am not familiar with either R, so I used AI to help write code and fix the numerous errors that arrived.
+
+        -   Implemented the code accurately and fixed syntax errors personally.
+
+        -   Instructed the AI to do what I required instead of relying on it to complete the entire assignment.
+
+    -   Knowledge accuracy & sources: outstanding
+
+        -   I am a commerce student with essentially no strong biology background and have not studied it in two years, so a course such as Computational Biology seems very out-of-scope but I still inquired excessively regarding the context and furthered studied many papers, even citing them.
+
+    -   Autonomous voice: excellent
+
+        -   I thought with the AI rather than have AI think for me by consistently asking questions and analyzing the code.
+
+        -   Clarified when I was confused or wanted to learn more and asked the AI to build the code according to my specifications rather than have it do it for me.
+
+    -   Suggested mark: **90%**
