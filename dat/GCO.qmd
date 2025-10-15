@@ -5,11 +5,11 @@ editor: visual
 date: last-modified
 ---
 
-# Part 1: Benchmark Standard Genetic Code Quality Score
+# Benchmark Standard Genetic Code Quality Score
 
 > Implementation should be verified by calculating the "quality" of the Standard Genetic Code as a control
 
-## 1.1: Load Required Packages
+## Load Required Packages
 
 ```{r}
 #| label: Load Required Packages
@@ -21,7 +21,7 @@ rna_bases <- c("U", "C", "A", "G")
 dna_bases <- c("T", "C", "A", "G")
 ```
 
-## 1.2: Define the Standard Genetic Code
+## Define the Standard Genetic Code
 
 ```{r}
 #| label: Define the Standard Genetic Code
@@ -30,7 +30,7 @@ stdGeneticCode <- getGeneticCode("Standard", full.search = TRUE)
 stdGeneticCode
 ```
 
-## 1.3: Generate Codons
+## Generate Codons
 
 ```{r}
 #| label: Generate Codons
@@ -43,7 +43,7 @@ all_codons <- chartr("U", "T", all_codons_rna)
 all_codons
 ```
 
-## 1.4: Define a Function to Get Neighbouring Codons
+## Define a Function to Get Neighbouring Codons
 
 ```{r}
 #| label: Define a Function to Get Neighbouring Codons
@@ -70,7 +70,7 @@ get_neighbors <- function(codon) {
 get_neighbors("ATG")
 ```
 
-## 1.5: Load the aaSim Function
+## Load the aaSim Function
 
 ```{r}
 #| label: Load the aaSim Function
@@ -88,7 +88,7 @@ if (!file.exists(fn)) download.file(paste0(baseURL, fn), fn, mode="wb")
 aaSim <- readRDS(fn)
 ```
 
-## 1.6: Compute the Benchmark
+## Compute the Benchmark
 
 ```{r}
 #| label: Compute the Benchmark
@@ -110,13 +110,13 @@ for (codon in all_codons) {
 total_score
 ```
 
-# Part 2: Comparing SGC to Randomly Generated Genetic Codes
+# Comparing SGC to Randomly Generated Genetic Codes
 
 Now that the SGC matches the expected result, we can move on to comparing it to random generated genetic codes, or the first part of the report.
 
 > Perform a computational experiment to compare the Standard Genetic Code with a large number of randomly generated codes, to assess whether it appears to have evolved under selection for such tolerance.
 
-## 2.1: Calculate Quality Score for Any Genetic Code
+## Calculate Quality Score for Any Genetic Code
 
 ```{r}
 #| label: Calculate Quality Score for Any Genetic Code
@@ -139,7 +139,7 @@ calc_code_quality <- function(genetic_code, aaSim) {
 }
 ```
 
-## 2.2: Generating 10,000 Random Genetic Codes
+## Generating 10,000 Random Genetic Codes
 
 > Each generated code must map 64 codons to all 20 amino acids, and at least one stop codon.
 
@@ -167,7 +167,7 @@ generate_random_code <- function() {
 }
 ```
 
-## 2.3: Statistical Analysis
+## Statistical Analysis
 
 ```{r}
 num_random <- 10000
@@ -184,7 +184,7 @@ for (i in 1:num_random) {
 sgc_score <- calc_code_quality(stdGeneticCode, aaSim)
 ```
 
-## 2.4: Visualization
+## Visualization
 
 ```{r}
 library(ggplot2)
@@ -204,14 +204,14 @@ ggplot(data.frame(score=random_scores), aes(x=score)) +
   labs(title="CDF of Random Genetic Code Scores", x="Score", y="CDF")
 ```
 
-## 2.5: Interpretation and Summary 
+## Interpretation and Summary
 
 ```{r}
 sgc_percentile <- mean(random_scores <= sgc_score) * 100
 sgc_percentile
 ```
 
-## 2.6: Create Summary Table for Report
+## Create Summary Table for Report
 
 ```{r}
 summary_table <- data.frame(
@@ -227,13 +227,13 @@ summary_table <- data.frame(
 summary_table
 ```
 
-# Part 3: Discussion and Analysis
+# Discussion and Analysis
 
 Now, that the tests have been successfully run, we can look into what they mean.
 
 > Discuss how close to a global optimum in this respect the Standard Genetic Code might be, and discuss limitations of your experiment in reaching your conclusions.
 
-## 3.1: Brief Summary
+## Brief Summary
 
 -   **Objective** is to evaluate whether the universal genetic code is the best it can be.
     -   Essentially, test whether the Standard Genetic Code is optimized to be tolerant of single-nucleotide point mutations by comparing its total amino-acid distance score (using the aaSim function) to a large sample of (10,000) randomly generated alternative codes which are then put through the same test.
@@ -241,7 +241,7 @@ Now, that the tests have been successfully run, we can look into what they mean.
     -   Two amino acids have a smaller score, thus a lower overall score means more that the genetic code tested is more tolerant.
 -   **Main finding** that has been computed is the SGC total score and is compared against random codes and plotted visually to contextualize findings.
 
-## 3.2: Description of Methods
+## Description of Methods
 
 ### Clarifications of Assumptions
 
@@ -323,7 +323,7 @@ Now, that the tests have been successfully run, we can look into what they mean.
 
 **See Appendix A for more details**
 
-## 3.3: Description of Results
+## Description of Results
 
 -   The total quality score for the Standard Genetic Code (SGC) was **9856.116**.
 
@@ -343,7 +343,7 @@ Now, that the tests have been successfully run, we can look into what they mean.
 
 -   In brief, these results support the hypothesis that the genetic code is non-randomly optimized to strongly minimize the harmful effects of point mutations.
 
-## 3.4: Discussion
+## Discussion
 
 -   These results suggest that the SGC is not a random outcome (such as that all living life had it randomly selected and kept it) but rather a product of evolutionary optimization where it has become more efficient over time.
 
@@ -373,7 +373,7 @@ Now, that the tests have been successfully run, we can look into what they mean.
 
 -   One notable thought is the use of a positive control (a theoretically "perfect" genetic code) and how the SGC compares to it and what is different between them.
 
-## 3.5: Conclusion
+## Conclusion
 
 -   The experiment successfully quantified the tolerance of point mutations of the Standard Genetic Code (SGC) using a similarity measure (aaSim).
 
@@ -393,7 +393,7 @@ Now, that the tests have been successfully run, we can look into what they mean.
 
 -   However, this experiment still has various limitations and should be taken as just one part of a larger system to figure out whether the SGC is the peak of biological optimization.
 
-## 3.6: References
+## References
 
 Freeland, Stephen J., Robin D. Knight, Laura F. Landweber, and Laurence D. Hurst. 2000. ["Early Fixation of an Optimal Genetic Code."](https://pubmed.ncbi.nlm.nih.gov/10742043/) *Molecular Biology and Evolution* 17, no. 4: 511-518.
 
@@ -401,7 +401,7 @@ Massey, Steven E. 2015. ["Genetic Code Evolution Reveals the Neutral Emergence o
 
 Hyginn. n.d. "Computing Amino Acid Similarity." GitHub repository, CSB195. Accessed October 12, 2025. <https://github.com/hyginn/CSB195/blob/main/src/qmd/computingAminoAcidSimilarity.qmd>.
 
-## 3.7: Appendix A - Implementation Details & Reproducibility
+## Appendix A - Implementation Details & Reproducibility
 
 -   Manually created the Quarto document in RStudio, typing all text while allowing AI to only input the R code itself.
 
@@ -411,7 +411,7 @@ Hyginn. n.d. "Computing Amino Acid Similarity." GitHub repository, CSB195. Acces
 
 -   Included an additional section titled "Discussion" to help discuss important limitations and research currently present in the field.
 
-## 3.8: Appendix B - AI Usage & Self-Assessment
+## Appendix B - AI Usage & Self-Assessment
 
 -   AI assistance
 

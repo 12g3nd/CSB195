@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Srihith Jarabana">
-<meta name="dcterms.date" content="2025-10-12">
+<meta name="dcterms.date" content="2025-10-15">
 
 <title>Report 1: Genetic Code Optimization</title>
 <style>
@@ -73,10 +73,50 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </head>
 
-<body class="fullcontent">
+<body>
 
 <div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
-
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#benchmark-standard-genetic-code-quality-score" id="toc-benchmark-standard-genetic-code-quality-score" class="nav-link active" data-scroll-target="#benchmark-standard-genetic-code-quality-score"><span class="header-section-number">1</span> Benchmark Standard Genetic Code Quality Score</a>
+  <ul class="collapse">
+  <li><a href="#load-required-packages" id="toc-load-required-packages" class="nav-link" data-scroll-target="#load-required-packages"><span class="header-section-number">1.1</span> Load Required Packages</a></li>
+  <li><a href="#define-the-standard-genetic-code" id="toc-define-the-standard-genetic-code" class="nav-link" data-scroll-target="#define-the-standard-genetic-code"><span class="header-section-number">1.2</span> Define the Standard Genetic Code</a></li>
+  <li><a href="#generate-codons" id="toc-generate-codons" class="nav-link" data-scroll-target="#generate-codons"><span class="header-section-number">1.3</span> Generate Codons</a></li>
+  <li><a href="#define-a-function-to-get-neighbouring-codons" id="toc-define-a-function-to-get-neighbouring-codons" class="nav-link" data-scroll-target="#define-a-function-to-get-neighbouring-codons"><span class="header-section-number">1.4</span> Define a Function to Get Neighbouring Codons</a></li>
+  <li><a href="#load-the-aasim-function" id="toc-load-the-aasim-function" class="nav-link" data-scroll-target="#load-the-aasim-function"><span class="header-section-number">1.5</span> Load the aaSim Function</a></li>
+  <li><a href="#compute-the-benchmark" id="toc-compute-the-benchmark" class="nav-link" data-scroll-target="#compute-the-benchmark"><span class="header-section-number">1.6</span> Compute the Benchmark</a></li>
+  </ul></li>
+  <li><a href="#comparing-sgc-to-randomly-generated-genetic-codes" id="toc-comparing-sgc-to-randomly-generated-genetic-codes" class="nav-link" data-scroll-target="#comparing-sgc-to-randomly-generated-genetic-codes"><span class="header-section-number">2</span> Comparing SGC to Randomly Generated Genetic Codes</a>
+  <ul class="collapse">
+  <li><a href="#calculate-quality-score-for-any-genetic-code" id="toc-calculate-quality-score-for-any-genetic-code" class="nav-link" data-scroll-target="#calculate-quality-score-for-any-genetic-code"><span class="header-section-number">2.1</span> Calculate Quality Score for Any Genetic Code</a></li>
+  <li><a href="#generating-10000-random-genetic-codes" id="toc-generating-10000-random-genetic-codes" class="nav-link" data-scroll-target="#generating-10000-random-genetic-codes"><span class="header-section-number">2.2</span> Generating 10,000 Random Genetic Codes</a></li>
+  <li><a href="#statistical-analysis" id="toc-statistical-analysis" class="nav-link" data-scroll-target="#statistical-analysis"><span class="header-section-number">2.3</span> Statistical Analysis</a></li>
+  <li><a href="#visualization" id="toc-visualization" class="nav-link" data-scroll-target="#visualization"><span class="header-section-number">2.4</span> Visualization</a></li>
+  <li><a href="#interpretation-and-summary" id="toc-interpretation-and-summary" class="nav-link" data-scroll-target="#interpretation-and-summary"><span class="header-section-number">2.5</span> Interpretation and Summary</a></li>
+  <li><a href="#create-summary-table-for-report" id="toc-create-summary-table-for-report" class="nav-link" data-scroll-target="#create-summary-table-for-report"><span class="header-section-number">2.6</span> Create Summary Table for Report</a></li>
+  </ul></li>
+  <li><a href="#discussion-and-analysis" id="toc-discussion-and-analysis" class="nav-link" data-scroll-target="#discussion-and-analysis"><span class="header-section-number">3</span> Discussion and Analysis</a>
+  <ul class="collapse">
+  <li><a href="#brief-summary" id="toc-brief-summary" class="nav-link" data-scroll-target="#brief-summary"><span class="header-section-number">3.1</span> Brief Summary</a></li>
+  <li><a href="#description-of-methods" id="toc-description-of-methods" class="nav-link" data-scroll-target="#description-of-methods"><span class="header-section-number">3.2</span> Description of Methods</a>
+  <ul class="collapse">
+  <li><a href="#clarifications-of-assumptions" id="toc-clarifications-of-assumptions" class="nav-link" data-scroll-target="#clarifications-of-assumptions"><span class="header-section-number">3.2.1</span> Clarifications of Assumptions</a></li>
+  <li><a href="#methodology" id="toc-methodology" class="nav-link" data-scroll-target="#methodology"><span class="header-section-number">3.2.2</span> Methodology</a></li>
+  </ul></li>
+  <li><a href="#description-of-results" id="toc-description-of-results" class="nav-link" data-scroll-target="#description-of-results"><span class="header-section-number">3.3</span> Description of Results</a></li>
+  <li><a href="#discussion" id="toc-discussion" class="nav-link" data-scroll-target="#discussion"><span class="header-section-number">3.4</span> Discussion</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><span class="header-section-number">3.5</span> Conclusion</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">3.6</span> References</a></li>
+  <li><a href="#appendix-a---implementation-details-reproducibility" id="toc-appendix-a---implementation-details-reproducibility" class="nav-link" data-scroll-target="#appendix-a---implementation-details-reproducibility"><span class="header-section-number">3.7</span> Appendix A - Implementation Details &amp; Reproducibility</a></li>
+  <li><a href="#appendix-b---ai-usage-self-assessment" id="toc-appendix-b---ai-usage-self-assessment" class="nav-link" data-scroll-target="#appendix-b---ai-usage-self-assessment"><span class="header-section-number">3.8</span> Appendix B - AI Usage &amp; Self-Assessment</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
@@ -98,7 +138,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 12, 2025</p>
+      <p class="date">October 15, 2025</p>
     </div>
   </div>
   
@@ -110,13 +150,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="part-1-benchmark-standard-genetic-code-quality-score" class="level1">
-<h1>Part 1: Benchmark Standard Genetic Code Quality Score</h1>
+<section id="benchmark-standard-genetic-code-quality-score" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Benchmark Standard Genetic Code Quality Score</h1>
 <blockquote class="blockquote">
 <p>Implementation should be verified by calculating the “quality” of the Standard Genetic Code as a control</p>
 </blockquote>
-<section id="load-required-packages" class="level2">
-<h2 class="anchored" data-anchor-id="load-required-packages">1.1: Load Required Packages</h2>
+<section id="load-required-packages" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="load-required-packages"><span class="header-section-number">1.1</span> Load Required Packages</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load required packages</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Biostrings)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -207,8 +247,8 @@ Attaching package: 'Biostrings'</code></pre>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>dna_bases <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"T"</span>, <span class="st">"C"</span>, <span class="st">"A"</span>, <span class="st">"G"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="define-the-standard-genetic-code" class="level2">
-<h2 class="anchored" data-anchor-id="define-the-standard-genetic-code">1.2: Define the Standard Genetic Code</h2>
+<section id="define-the-standard-genetic-code" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="define-the-standard-genetic-code"><span class="header-section-number">1.2</span> Define the Standard Genetic Code</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the standard genetic code (DNA codons)</span></span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>stdGeneticCode <span class="ot">&lt;-</span> <span class="fu">getGeneticCode</span>(<span class="st">"Standard"</span>, <span class="at">full.search =</span> <span class="cn">TRUE</span>)</span>
@@ -227,8 +267,8 @@ attr(,"alt_init_codons")
 </div>
 </div>
 </section>
-<section id="generate-codons" class="level2">
-<h2 class="anchored" data-anchor-id="generate-codons">1.3: Generate Codons</h2>
+<section id="generate-codons" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="generate-codons"><span class="header-section-number">1.3</span> Generate Codons</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate all possible RNA codons first</span></span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>all_codons_rna <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(rna_bases, rna_bases, rna_bases)</span>
@@ -247,8 +287,8 @@ attr(,"alt_init_codons")
 </div>
 </div>
 </section>
-<section id="define-a-function-to-get-neighbouring-codons" class="level2">
-<h2 class="anchored" data-anchor-id="define-a-function-to-get-neighbouring-codons">1.4: Define a Function to Get Neighbouring Codons</h2>
+<section id="define-a-function-to-get-neighbouring-codons" class="level2" data-number="1.4">
+<h2 data-number="1.4" class="anchored" data-anchor-id="define-a-function-to-get-neighbouring-codons"><span class="header-section-number">1.4</span> Define a Function to Get Neighbouring Codons</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to generate all codons that differ by 1 nucleotide</span></span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>get_neighbors <span class="ot">&lt;-</span> <span class="cf">function</span>(codon) {</span>
@@ -276,8 +316,8 @@ attr(,"alt_init_codons")
 </div>
 </div>
 </section>
-<section id="load-the-aasim-function" class="level2">
-<h2 class="anchored" data-anchor-id="load-the-aasim-function">1.5: Load the aaSim Function</h2>
+<section id="load-the-aasim-function" class="level2" data-number="1.5">
+<h2 data-number="1.5" class="anchored" data-anchor-id="load-the-aasim-function"><span class="header-section-number">1.5</span> Load the aaSim Function</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Download and load the prebuilt aaSim function</span></span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>baseURL <span class="ot">&lt;-</span> <span class="st">"https://raw.githubusercontent.com/hyginn/CSB195/main/"</span></span>
@@ -293,8 +333,8 @@ attr(,"alt_init_codons")
 <span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>aaSim <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(fn)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="compute-the-benchmark" class="level2">
-<h2 class="anchored" data-anchor-id="compute-the-benchmark">1.6: Compute the Benchmark</h2>
+<section id="compute-the-benchmark" class="level2" data-number="1.6">
+<h2 data-number="1.6" class="anchored" data-anchor-id="compute-the-benchmark"><span class="header-section-number">1.6</span> Compute the Benchmark</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize total score</span></span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>total_score <span class="ot">&lt;-</span> <span class="dv">0</span></span>
@@ -318,14 +358,14 @@ attr(,"alt_init_codons")
 </div>
 </section>
 </section>
-<section id="part-2-comparing-sgc-to-randomly-generated-genetic-codes" class="level1">
-<h1>Part 2: Comparing SGC to Randomly Generated Genetic Codes</h1>
+<section id="comparing-sgc-to-randomly-generated-genetic-codes" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Comparing SGC to Randomly Generated Genetic Codes</h1>
 <p>Now that the SGC matches the expected result, we can move on to comparing it to random generated genetic codes, or the first part of the report.</p>
 <blockquote class="blockquote">
 <p>Perform a computational experiment to compare the Standard Genetic Code with a large number of randomly generated codes, to assess whether it appears to have evolved under selection for such tolerance.</p>
 </blockquote>
-<section id="calculate-quality-score-for-any-genetic-code" class="level2">
-<h2 class="anchored" data-anchor-id="calculate-quality-score-for-any-genetic-code">2.1: Calculate Quality Score for Any Genetic Code</h2>
+<section id="calculate-quality-score-for-any-genetic-code" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="calculate-quality-score-for-any-genetic-code"><span class="header-section-number">2.1</span> Calculate Quality Score for Any Genetic Code</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to calculate total code quality score</span></span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>calc_code_quality <span class="ot">&lt;-</span> <span class="cf">function</span>(genetic_code, aaSim) {</span>
@@ -346,8 +386,8 @@ attr(,"alt_init_codons")
 <span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="generating-10000-random-genetic-codes" class="level2">
-<h2 class="anchored" data-anchor-id="generating-10000-random-genetic-codes">2.2: Generating 10,000 Random Genetic Codes</h2>
+<section id="generating-10000-random-genetic-codes" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="generating-10000-random-genetic-codes"><span class="header-section-number">2.2</span> Generating 10,000 Random Genetic Codes</h2>
 <blockquote class="blockquote">
 <p>Each generated code must map 64 codons to all 20 amino acids, and at least one stop codon.</p>
 </blockquote>
@@ -374,8 +414,8 @@ attr(,"alt_init_codons")
 <span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="statistical-analysis" class="level2">
-<h2 class="anchored" data-anchor-id="statistical-analysis">2.3: Statistical Analysis</h2>
+<section id="statistical-analysis" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="statistical-analysis"><span class="header-section-number">2.3</span> Statistical Analysis</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>num_random <span class="ot">&lt;-</span> <span class="dv">10000</span></span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>random_scores <span class="ot">&lt;-</span> <span class="fu">numeric</span>(num_random)</span>
@@ -402,8 +442,8 @@ Processed 10000 codes</code></pre>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>sgc_score <span class="ot">&lt;-</span> <span class="fu">calc_code_quality</span>(stdGeneticCode, aaSim)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="visualization" class="level2">
-<h2 class="anchored" data-anchor-id="visualization">2.4: Visualization</h2>
+<section id="visualization" class="level2" data-number="2.4">
+<h2 data-number="2.4" class="anchored" data-anchor-id="visualization"><span class="header-section-number">2.4</span> Visualization</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -439,8 +479,8 @@ Processed 10000 codes</code></pre>
 </div>
 </div>
 </section>
-<section id="interpretation-and-summary" class="level2">
-<h2 class="anchored" data-anchor-id="interpretation-and-summary">2.5: Interpretation and Summary</h2>
+<section id="interpretation-and-summary" class="level2" data-number="2.5">
+<h2 data-number="2.5" class="anchored" data-anchor-id="interpretation-and-summary"><span class="header-section-number">2.5</span> Interpretation and Summary</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>sgc_percentile <span class="ot">&lt;-</span> <span class="fu">mean</span>(random_scores <span class="sc">&lt;=</span> sgc_score) <span class="sc">*</span> <span class="dv">100</span></span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>sgc_percentile</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -449,8 +489,8 @@ Processed 10000 codes</code></pre>
 </div>
 </div>
 </section>
-<section id="create-summary-table-for-report" class="level2">
-<h2 class="anchored" data-anchor-id="create-summary-table-for-report">2.6: Create Summary Table for Report</h2>
+<section id="create-summary-table-for-report" class="level2" data-number="2.6">
+<h2 data-number="2.6" class="anchored" data-anchor-id="create-summary-table-for-report"><span class="header-section-number">2.6</span> Create Summary Table for Report</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>summary_table <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Metric =</span> <span class="fu">c</span>(<span class="st">"SGC Score"</span>, <span class="st">"Random Mean"</span>, <span class="st">"Random SD"</span>, <span class="st">"SGC Percentile"</span>),</span>
@@ -473,14 +513,14 @@ Processed 10000 codes</code></pre>
 </div>
 </section>
 </section>
-<section id="part-3-discussion-and-analysis" class="level1">
-<h1>Part 3: Discussion and Analysis</h1>
+<section id="discussion-and-analysis" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Discussion and Analysis</h1>
 <p>Now, that the tests have been successfully run, we can look into what they mean.</p>
 <blockquote class="blockquote">
 <p>Discuss how close to a global optimum in this respect the Standard Genetic Code might be, and discuss limitations of your experiment in reaching your conclusions.</p>
 </blockquote>
-<section id="brief-summary" class="level2">
-<h2 class="anchored" data-anchor-id="brief-summary">3.1: Brief Summary</h2>
+<section id="brief-summary" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="brief-summary"><span class="header-section-number">3.1</span> Brief Summary</h2>
 <ul>
 <li><strong>Objective</strong> is to evaluate whether the universal genetic code is the best it can be.
 <ul>
@@ -493,10 +533,10 @@ Processed 10000 codes</code></pre>
 <li><strong>Main finding</strong> that has been computed is the SGC total score and is compared against random codes and plotted visually to contextualize findings.</li>
 </ul>
 </section>
-<section id="description-of-methods" class="level2">
-<h2 class="anchored" data-anchor-id="description-of-methods">3.2: Description of Methods</h2>
-<section id="clarifications-of-assumptions" class="level3">
-<h3 class="anchored" data-anchor-id="clarifications-of-assumptions">Clarifications of Assumptions</h3>
+<section id="description-of-methods" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="description-of-methods"><span class="header-section-number">3.2</span> Description of Methods</h2>
+<section id="clarifications-of-assumptions" class="level3" data-number="3.2.1">
+<h3 data-number="3.2.1" class="anchored" data-anchor-id="clarifications-of-assumptions"><span class="header-section-number">3.2.1</span> Clarifications of Assumptions</h3>
 <blockquote class="blockquote">
 <p>How to define a computable measure of tolerance of point mutations</p>
 </blockquote>
@@ -525,8 +565,8 @@ Processed 10000 codes</code></pre>
 <li><p>Standard genetic code acted as the “test” case and the randomly generated genetic codes implicitly acted as the negative control.</p></li>
 </ul>
 </section>
-<section id="methodology" class="level3">
-<h3 class="anchored" data-anchor-id="methodology">Methodology</h3>
+<section id="methodology" class="level3" data-number="3.2.2">
+<h3 data-number="3.2.2" class="anchored" data-anchor-id="methodology"><span class="header-section-number">3.2.2</span> Methodology</h3>
 <ol type="1">
 <li><p>Define a measure of mutation tolerance (“quality”)</p>
 <p>a. Used the aaSim() function to compute how tolerant a genetic code is to single-nucleotide (point) mutations.</p>
@@ -558,8 +598,8 @@ Processed 10000 codes</code></pre>
 <p><strong>See Appendix A for more details</strong></p>
 </section>
 </section>
-<section id="description-of-results" class="level2">
-<h2 class="anchored" data-anchor-id="description-of-results">3.3: Description of Results</h2>
+<section id="description-of-results" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="description-of-results"><span class="header-section-number">3.3</span> Description of Results</h2>
 <ul>
 <li><p>The total quality score for the Standard Genetic Code (SGC) was <strong>9856.116</strong>.</p>
 <ul>
@@ -576,8 +616,8 @@ Processed 10000 codes</code></pre>
 <li><p>In brief, these results support the hypothesis that the genetic code is non-randomly optimized to strongly minimize the harmful effects of point mutations.</p></li>
 </ul>
 </section>
-<section id="discussion" class="level2">
-<h2 class="anchored" data-anchor-id="discussion">3.4: Discussion</h2>
+<section id="discussion" class="level2" data-number="3.4">
+<h2 data-number="3.4" class="anchored" data-anchor-id="discussion"><span class="header-section-number">3.4</span> Discussion</h2>
 <ul>
 <li><p>These results suggest that the SGC is not a random outcome (such as that all living life had it randomly selected and kept it) but rather a product of evolutionary optimization where it has become more efficient over time.</p></li>
 <li><p>Scientific literature often supports these findings as many show how the SGC minimizes translation errors and the biochemical impact of point mutations far better than most possible genetic codes.</p></li>
@@ -605,8 +645,8 @@ Processed 10000 codes</code></pre>
 <li>One notable thought is the use of a positive control (a theoretically “perfect” genetic code) and how the SGC compares to it and what is different between them.</li>
 </ul>
 </section>
-<section id="conclusion" class="level2">
-<h2 class="anchored" data-anchor-id="conclusion">3.5: Conclusion</h2>
+<section id="conclusion" class="level2" data-number="3.5">
+<h2 data-number="3.5" class="anchored" data-anchor-id="conclusion"><span class="header-section-number">3.5</span> Conclusion</h2>
 <ul>
 <li>The experiment successfully quantified the tolerance of point mutations of the Standard Genetic Code (SGC) using a similarity measure (aaSim).</li>
 </ul>
@@ -627,14 +667,14 @@ Processed 10000 codes</code></pre>
 <li><p>However, this experiment still has various limitations and should be taken as just one part of a larger system to figure out whether the SGC is the peak of biological optimization.</p></li>
 </ul>
 </section>
-<section id="references" class="level2">
-<h2 class="anchored" data-anchor-id="references">3.6: References</h2>
+<section id="references" class="level2" data-number="3.6">
+<h2 data-number="3.6" class="anchored" data-anchor-id="references"><span class="header-section-number">3.6</span> References</h2>
 <p>Freeland, Stephen J., Robin D. Knight, Laura F. Landweber, and Laurence D. Hurst. 2000. <a href="https://pubmed.ncbi.nlm.nih.gov/10742043/">“Early Fixation of an Optimal Genetic Code.”</a> <em>Molecular Biology and Evolution</em> 17, no. 4: 511-518.</p>
 <p>Massey, Steven E. 2015. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4500140/">“Genetic Code Evolution Reveals the Neutral Emergence of Mutational Robustness, and Information as an Evolutionary Constraint.”</a> <em>Life</em> 5, no. 2: 1301-1332.</p>
 <p>Hyginn. n.d. “Computing Amino Acid Similarity.” GitHub repository, CSB195. Accessed October 12, 2025. <a href="https://github.com/hyginn/CSB195/blob/main/src/qmd/computingAminoAcidSimilarity.qmd" class="uri">https://github.com/hyginn/CSB195/blob/main/src/qmd/computingAminoAcidSimilarity.qmd</a>.</p>
 </section>
-<section id="appendix-a---implementation-details-reproducibility" class="level2">
-<h2 class="anchored" data-anchor-id="appendix-a---implementation-details-reproducibility">3.7: Appendix A - Implementation Details &amp; Reproducibility</h2>
+<section id="appendix-a---implementation-details-reproducibility" class="level2" data-number="3.7">
+<h2 data-number="3.7" class="anchored" data-anchor-id="appendix-a---implementation-details-reproducibility"><span class="header-section-number">3.7</span> Appendix A - Implementation Details &amp; Reproducibility</h2>
 <ul>
 <li><p>Manually created the Quarto document in RStudio, typing all text while allowing AI to only input the R code itself.</p>
 <ul>
@@ -644,8 +684,8 @@ Processed 10000 codes</code></pre>
 <li><p>Included an additional section titled “Discussion” to help discuss important limitations and research currently present in the field.</p></li>
 </ul>
 </section>
-<section id="appendix-b---ai-usage-self-assessment" class="level2">
-<h2 class="anchored" data-anchor-id="appendix-b---ai-usage-self-assessment">3.8: Appendix B - AI Usage &amp; Self-Assessment</h2>
+<section id="appendix-b---ai-usage-self-assessment" class="level2" data-number="3.8">
+<h2 data-number="3.8" class="anchored" data-anchor-id="appendix-b---ai-usage-self-assessment"><span class="header-section-number">3.8</span> Appendix B - AI Usage &amp; Self-Assessment</h2>
 <ul>
 <li><p>AI assistance</p>
 <ul>

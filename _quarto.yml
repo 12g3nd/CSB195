@@ -3,10 +3,11 @@ project:
   output-dir: out
   execute-dir: project   # force working dir to project root
   render:
-    output-path: out     # force html and files directly into ./out/
+    - "*.qmd"            # render all .qmd files (optional — can remove entirely if not needed)
 
 format:
   html:
     toc: true
     number-sections: true
     code-fold: false
+
